@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Lab Allocation System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #0f172a;
+            color: white;
+            padding: 25px 18px;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 21px;
+            margin-bottom: 35px;
+            line-height: 1.5;
+        }
+
+        .sidebar a {
+            display: block;
+            text-decoration: none;
+            color: #cbd5e1;
+            padding: 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: 250px;
+            padding: 35px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .badge {
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        /* Dashboard Statistics */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+            margin-bottom: 35px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid #2563eb;
+        }
+
+        .card:nth-child(2) {
+            border-left-color: #0d9488;
+        }
+
+        .card:nth-child(3) {
+            border-left-color: #9333ea;
+        }
+
+        .card p {
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+
+        .card h2 {
+            font-size: 32px;
+        }
+
+        /* Sections */
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            margin-bottom: 18px;
+            font-size: 20px;
+        }
+
+        /* Quick Actions */
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .action {
+            display: block;
+            padding: 20px;
+            background: #eff6ff;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #1d4ed8;
+            font-weight: bold;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .action:hover {
+            background: #dbeafe;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #64748b;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 1100px) {
+            .cards {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .actions {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            .cards,
+            .actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .sidebar h2 {
+                margin-bottom: 20px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+
+        <h2>🧪 Smart Lab<br>Allocation System</h2>
+
+        <a href="/" class="active">🏠 Dashboard</a>
+
+        <a href="/students">👨‍🎓 Students</a>
+
+        <a href="/labs">🧪 Laboratories</a>
+
+        <a href="/allocations/add">➕ New Allocation</a>
+
+        <a href="/allocations">📋 All Allocations</a>
+
+        <!-- NEW: Lab Availability Link -->
+        <a href="/lab-availability">🔍 Check Lab Availability</a>
+
+    </aside>
+
+    <!-- Main Dashboard -->
+    <main class="main">
+
+        <!-- Header -->
+        <header class="header">
+
+            <div>
+                <h1>Dashboard</h1>
+
+                <p>
+                    Welcome to the Smart Lab Allocation Management System.
+                </p>
+            </div>
+
+            <span class="badge">Management Portal</span>
+
+        </header>
+
+        <!-- Statistics Cards -->
+        <section class="cards">
+
+            <div class="card">
+                <p>👨‍🎓 Total Students</p>
+
+                <h2 th:text="${totalStudents}">0</h2>
+            </div>
+
+            <div class="card">
+                <p>🧪 Total Laboratories</p>
+
+                <h2 th:text="${totalLabs}">0</h2>
+            </div>
+
+            <div class="card">
+                <p>📅 Total Allocations</p>
+
+                <h2 th:text="${totalAllocations}">0</h2>
+            </div>
+
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="section">
+
+            <h2>Quick Actions</h2>
+
+            <div class="actions">
+
+                <a class="action" href="/students">
+                    👨‍🎓 Manage Students
+                </a>
+
+                <a class="action" href="/labs">
+                    🧪 Manage Laboratories
+                </a>
+
+                <a class="action" href="/allocations/add">
+                    📅 Allocate a Laboratory
+                </a>
+
+                <!-- NEW: Lab Availability Button -->
+                <a class="action" href="/lab-availability">
+                    🔍 Check Lab Availability
+                </a>
+
+            </div>
+
+        </section>
+
+        <!-- About the System -->
+        <section class="section">
+
+            <h2>About the System</h2>
+
+            <p>
+                This system helps manage student information, laboratory
+                details, and laboratory allocations. It supports organized
+                scheduling and helps prevent overlapping laboratory bookings.
+            </p>
+
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            Smart Lab Allocation Management System
+        </footer>
+
+    </main>
+
+</body>
+
+</html>

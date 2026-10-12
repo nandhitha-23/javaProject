@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Lab</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #243b55;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            background: #198754;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #146c43;
+        }
+
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #0d6efd;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1 th:text="${lab.id == null ? 'Add New Lab' : 'Edit Lab'}">
+        Add New Lab
+    </h1>
+
+    <form th:action="@{/labs/save}"
+          th:object="${lab}"
+          method="post">
+
+        <input type="hidden" th:field="*{id}">
+
+        <label for="labName">Lab Name</label>
+        <input type="text"
+               id="labName"
+               th:field="*{labName}"
+               placeholder="Enter lab name"
+               required>
+
+        <label for="location">Location</label>
+        <input type="text"
+               id="location"
+               th:field="*{location}"
+               placeholder="Enter lab location"
+               required>
+
+        <label for="capacity">Capacity</label>
+        <input type="number"
+               id="capacity"
+               th:field="*{capacity}"
+               min="1"
+               placeholder="Enter lab capacity"
+               required>
+
+        <button type="submit">Save Lab</button>
+
+    </form>
+
+    <a class="back-btn" th:href="@{/labs}">
+        ← Back to Lab List
+    </a>
+
+</div>
+
+</body>
+</html>

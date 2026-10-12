@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Allocation</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f6f9;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px #cccccc;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h2>Lab Allocation Form</h2>
+
+        <form th:action="@{/allocations/save}"
+              th:object="${allocation}"
+              method="post">
+
+            <!-- Allocation ID -->
+            <input type="hidden" th:field="*{id}">
+
+            <!-- Student Selection -->
+            <label for="student">Select Student:</label>
+
+            <select id="student"
+                    th:field="*{student.studentId}"
+                    required>
+
+                <option value="">-- Select Student --</option>
+
+                <option th:each="student : ${students}"
+                        th:value="${student.studentId}"
+                        th:text="${student.studentName}">
+                </option>
+
+            </select>
+
+            <!-- Lab Selection -->
+            <label for="lab">Select Lab:</label>
+
+            <select id="lab"
+                    th:field="*{lab.id}"
+                    required>
+
+                <option value="">-- Select Lab --</option>
+
+                <option th:each="lab : ${labs}"
+                        th:value="${lab.id}"
+                        th:text="${lab.labName}">
+                </option>
+
+            </select>
+
+            <!-- Allocation Date -->
+            <label for="allocationDate">Allocation Date:</label>
+
+            <input type="date"
+                   id="allocationDate"
+                   th:field="*{allocationDate}"
+                   required>
+
+            <!-- Start Time -->
+            <label for="startTime">Start Time:</label>
+
+            <input type="time"
+                   id="startTime"
+                   th:field="*{startTime}"
+                   required>
+
+            <!-- End Time -->
+            <label for="endTime">End Time:</label>
+
+            <input type="time"
+                   id="endTime"
+                   th:field="*{endTime}"
+                   required>
+
+            <!-- Submit Button -->
+            <button type="submit">Save Allocation</button>
+
+        </form>
+
+        <!-- Back Link -->
+        <a class="back-link" th:href="@{/allocations}">
+            Back to Allocations
+        </a>
+
+    </div>
+
+</body>
+</html>

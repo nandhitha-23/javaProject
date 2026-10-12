@@ -1,0 +1,9 @@
+target/
+build/
+.vscode/
+.idea/
+*.iml
+*.log
+
+# Do not upload local credentials
+src/main/resources/application.properties
