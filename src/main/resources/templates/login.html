@@ -143,8 +143,16 @@
     </form>
 
     <div class="demo-hint">
-        <span>Default Access:</span>
+        <span>Default Admin Access:</span>
         <code>admin / java</code>
+    </div>
+
+    <!-- Student Portal Switch -->
+    <div style="margin-top: 18px; padding: 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: var(--radius-md); text-align: center;">
+        <div style="font-size: 13px; font-weight: 700; color: #065f46; margin-bottom: 4px;">👨‍🎓 Are you a Student?</div>
+        <a th:href="@{/student/portal}" style="display: inline-block; font-size: 13px; font-weight: 700; color: #059669; text-decoration: none;">
+            Access Student Dashboard & Timetable →
+        </a>
     </div>
 
     <div class="login-footer">

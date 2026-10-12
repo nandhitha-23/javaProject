@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${student.studentName + ' | Student Dashboard - SmartLab'}">Student Dashboard | SmartLab</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+
+    <style>
+        .student-nav {
+            background: #0b1329;
+            color: #ffffff;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .student-nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .student-nav-brand .brand-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .student-nav-brand h2 {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+
+        .student-nav-brand span {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .student-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .student-nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .student-nav-link:hover, .student-nav-link.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .student-user-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+        }
+
+        .student-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        .student-user-meta {
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .student-user-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .student-user-roll {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .student-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .welcome-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: var(--radius-lg);
+            padding: 32px 36px;
+            color: #ffffff;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .welcome-title h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-title p {
+            font-size: 14px;
+            color: #94a3b8;
+            max-width: 600px;
+        }
+
+        .student-tags {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tag-dept {
+            background: rgba(37, 99, 235, 0.25);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+        }
+
+        .tag-roll {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+        }
+
+        .today-card {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .today-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .today-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #166534;
+        }
+
+        .session-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .session-item {
+            background: #ffffff;
+            border: 1px solid #dcfce7;
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .session-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #10b981;
+        }
+
+        .session-time {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .session-lab {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .session-room {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-today {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-upcoming {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-past {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .student-nav {
+                flex-direction: column;
+                gap: 12px;
+                padding: 16px;
+            }
+            .student-nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .welcome-hero {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Student Navigation Header -->
+<header class="student-nav">
+    <a th:href="@{/student/dashboard(rollNo=${student.rollNo})}" class="student-nav-brand">
+        <div class="brand-logo">👨‍🎓</div>
+        <div>
+            <h2>SmartLab</h2>
+            <span>Student Portal</span>
+        </div>
+    </a>
+
+    <nav class="student-nav-links">
+        <a th:href="@{/student/dashboard(rollNo=${student.rollNo})}" class="student-nav-link active">
+            <span>🏠</span>
+            <span>My Timetable</span>
+        </a>
+        <a th:href="@{/student/availability(rollNo=${student.rollNo})}" class="student-nav-link">
+            <span>🔍</span>
+            <span>Check Lab Availability</span>
+        </a>
+        <a th:href="@{/student/labs(rollNo=${student.rollNo})}" class="student-nav-link">
+            <span>🧪</span>
+            <span>Campus Labs</span>
+        </a>
+    </nav>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="student-user-pill">
+            <div class="student-avatar" th:text="${#strings.substring(student.studentName, 0, 1)}">S</div>
+            <div class="student-user-meta">
+                <div class="student-user-name" th:text="${student.studentName}">Student Name</div>
+                <div class="student-user-roll" th:text="${student.rollNo}">ROLL-NO</div>
+            </div>
+        </div>
+
+        <a th:href="@{/student/portal}" class="btn btn-secondary btn-sm" title="Switch Roll Number" style="padding: 7px 12px; font-size: 12px;">
+            <span>🔄 Switch</span>
+        </a>
+
+        <a th:href="@{/login}" class="btn btn-secondary btn-sm" title="Admin Sign In" style="padding: 7px 12px; font-size: 12px;">
+            <span>🔒 Admin</span>
+        </a>
+    </div>
+</header>
+
+<main class="student-container">
+
+    <!-- Welcome Hero -->
+    <section class="welcome-hero">
+        <div>
+            <div class="welcome-title">
+                <h1>Hello, <span th:text="${student.studentName}">Student</span>! 👋</h1>
+                <p>Welcome to your personal laboratory schedule portal. Track your upcoming sessions, laboratory room assignments, and campus vacancies.</p>
+            </div>
+            <div class="student-tags">
+                <span class="tag-pill tag-dept">
+                    <span>🏛 Department:</span>
+                    <strong th:text="${student.department}">Computer Science</strong>
+                </span>
+                <span class="tag-pill tag-roll">
+                    <span>🆔 Roll No:</span>
+                    <strong th:text="${student.rollNo}">21CS01</strong>
+                </span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a th:href="@{/student/availability(rollNo=${student.rollNo})}" class="btn btn-primary">
+                <span>🔍 Find Free Labs</span>
+            </a>
+            <a th:href="@{/student/labs(rollNo=${student.rollNo})}" class="btn btn-secondary">
+                <span>🧪 Lab Directory</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Stats Grid -->
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon emerald">🕒</div>
+            <div class="stat-details">
+                <div class="label">Today's Sessions</div>
+                <div class="value" th:text="${todayCount}">0</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon blue">📅</div>
+            <div class="stat-details">
+                <div class="label">Upcoming Sessions</div>
+                <div class="value" th:text="${upcomingCount}">0</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">📋</div>
+            <div class="stat-details">
+                <div class="label">Total Allocations</div>
+                <div class="value" th:text="${totalAllocationsCount}">0</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon amber">🧪</div>
+            <div class="stat-details">
+                <div class="label">Total Campus Labs</div>
+                <div class="value" th:text="${totalLabsCount}">0</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Today's Schedule Highlight (if any today) -->
+    <section th:if="${todayAllocations != null and !todayAllocations.empty}" class="today-card">
+        <div class="today-header">
+            <div class="today-title">
+                <span>⚡</span>
+                <span>Today's Scheduled Lab Sessions (<span th:text="${#temporals.format(todayDate, 'dd MMMM yyyy')}">Date</span>)</span>
+            </div>
+            <span class="status-badge status-today">
+                <span class="status-dot green"></span>
+                <span>Happening Today</span>
+            </span>
+        </div>
+
+        <div class="session-grid">
+            <div th:each="item : ${todayAllocations}" class="session-item">
+                <div class="session-time">
+                    <span>⏰</span>
+                    <span th:text="${item.startTime + ' - ' + item.endTime}">09:00 - 11:00</span>
+                </div>
+                <div class="session-lab" th:text="${item.lab != null ? item.lab.labName : 'Lab N/A'}">Computer Lab 1</div>
+                <div class="session-room">
+                    <span>📍 Room: </span>
+                    <strong th:text="${item.lab != null ? item.lab.roomNumber : 'TBD'}">Room 101</strong>
+                    <span style="margin-left: 10px;">👥 Capacity: </span>
+                    <span th:text="${item.lab != null ? item.lab.capacity : 'N/A'}">30</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Complete Timetable & Allocation History -->
+    <section class="card-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">Your Scheduled Allocations</h2>
+                <div class="panel-subtitle">Comprehensive list of all lab sessions allocated to your roll number.</div>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/student/availability(rollNo=${student.rollNo})}" class="btn btn-secondary btn-sm">
+                    <span>Check Free Slots →</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Allocations Table -->
+        <div class="table-container" th:if="${allocations != null and !allocations.empty}">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time Slot</th>
+                        <th>Laboratory</th>
+                        <th>Room No.</th>
+                        <th>Capacity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="alloc : ${allocations}">
+                        <td>
+                            <strong th:text="${#temporals.format(alloc.allocationDate, 'dd MMM yyyy')}">12 Oct 2026</strong>
+                        </td>
+                        <td>
+                            <span class="badge badge-blue" th:text="${alloc.startTime + ' - ' + alloc.endTime}">09:00 - 11:00</span>
+                        </td>
+                        <td>
+                            <strong th:text="${alloc.lab != null ? alloc.lab.labName : 'N/A'}">Computer Network Lab</strong>
+                        </td>
+                        <td>
+                            <span th:text="${alloc.lab != null ? alloc.lab.roomNumber : 'N/A'}">Lab-204</span>
+                        </td>
+                        <td>
+                            <span th:text="${alloc.lab != null ? alloc.lab.capacity + ' seats' : 'N/A'}">40 seats</span>
+                        </td>
+                        <td>
+                            <!-- Status determination -->
+                            <span th:if="${alloc.allocationDate.isEqual(todayDate)}" class="status-badge status-today">
+                                <span class="status-dot green"></span> Today
+                            </span>
+                            <span th:if="${alloc.allocationDate.isAfter(todayDate)}" class="status-badge status-upcoming">
+                                <span class="status-dot blue"></span> Upcoming
+                            </span>
+                            <span th:if="${alloc.allocationDate.isBefore(todayDate)}" class="status-badge status-past">
+                                Completed
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State if no allocations -->
+        <div class="empty-state" th:if="${allocations == null or allocations.empty}">
+            <div class="empty-state-icon">📋</div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">No Lab Allocations Yet</h3>
+            <p style="font-size: 13px; color: #64748b; max-width: 440px; margin: 0 auto 20px;">
+                You do not have any scheduled lab sessions assigned to your roll number currently. Check back later or contact your department lab coordinator.
+            </p>
+            <a th:href="@{/student/availability(rollNo=${student.rollNo})}" class="btn btn-primary">
+                <span>🔍 Check Available Labs Now</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Student Guidance & Notes Card -->
+    <section class="card-panel" style="margin-top: 24px;">
+        <div class="panel-header">
+            <h2 class="panel-title">Laboratory Guidelines & Reminders</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+            <div style="background: #f8fafc; padding: 16px; border-radius: var(--radius-md); border-left: 3px solid var(--primary);">
+                <strong style="color: var(--text-main); display: block; margin-bottom: 4px;">🪪 ID Card Mandatory</strong>
+                Students must carry their college identity card and report 5 minutes prior to the scheduled start time.
+            </div>
+            <div style="background: #f8fafc; padding: 16px; border-radius: var(--radius-md); border-left: 3px solid var(--success);">
+                <strong style="color: var(--text-main); display: block; margin-bottom: 4px;">🔍 Free Practice Slots</strong>
+                Need a lab space for assignments? Use the "Check Lab Availability" tool to find empty laboratories and contact the lab technician.
+            </div>
+            <div style="background: #f8fafc; padding: 16px; border-radius: var(--radius-md); border-left: 3px solid var(--warning);">
+                <strong style="color: var(--text-main); display: block; margin-bottom: 4px;">⚠️ Schedule Conflicts</strong>
+                If your assigned allocation clashes with another course or lecture, notify your department coordinator promptly.
+            </div>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>

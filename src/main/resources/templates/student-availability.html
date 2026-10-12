@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Lab Availability | SmartLab Student Portal</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+
+    <style>
+        .student-nav {
+            background: #0b1329;
+            color: #ffffff;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .student-nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .student-nav-brand .brand-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .student-nav-brand h2 {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+
+        .student-nav-brand span {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .student-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .student-nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .student-nav-link:hover, .student-nav-link.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .student-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .availability-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 28px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Header -->
+<header class="student-nav">
+    <a th:href="${rollNo != null and !rollNo.isBlank()} ? @{/student/dashboard(rollNo=${rollNo})} : @{/student/portal}" class="student-nav-brand">
+        <div class="brand-logo">👨‍🎓</div>
+        <div>
+            <h2>SmartLab</h2>
+            <span>Student Portal</span>
+        </div>
+    </a>
+
+    <nav class="student-nav-links">
+        <a th:if="${rollNo != null and !rollNo.isBlank()}" th:href="@{/student/dashboard(rollNo=${rollNo})}" class="student-nav-link">
+            <span>🏠</span>
+            <span>My Timetable</span>
+        </a>
+        <a th:href="@{/student/availability(rollNo=${rollNo})}" class="student-nav-link active">
+            <span>🔍</span>
+            <span>Check Lab Availability</span>
+        </a>
+        <a th:href="@{/student/labs(rollNo=${rollNo})}" class="student-nav-link">
+            <span>🧪</span>
+            <span>Campus Labs</span>
+        </a>
+    </nav>
+
+    <div>
+        <a th:if="${rollNo != null and !rollNo.isBlank()}" th:href="@{/student/dashboard(rollNo=${rollNo})}" class="btn btn-secondary btn-sm">
+            <span>← Back to Dashboard</span>
+        </a>
+        <a th:if="${rollNo == null or rollNo.isBlank()}" th:href="@{/student/portal}" class="btn btn-secondary btn-sm">
+            <span>Student Portal</span>
+        </a>
+    </div>
+</header>
+
+<main class="student-container">
+
+    <div class="page-header">
+        <div class="page-title">
+            <h1>Check Laboratory Availability</h1>
+            <p>Pick a date and time slot to discover free, unoccupied laboratories across campus for project work or self-study.</p>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div th:if="${error}" class="alert alert-danger" style="margin-bottom: 20px;">
+        <span>⚠</span>
+        <span th:text="${error}">End time must be after start time.</span>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="availability-card">
+        <form th:action="@{/student/availability}" method="get">
+            <input type="hidden" name="rollNo" th:value="${rollNo}" th:if="${rollNo != null}">
+
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label" for="date">Select Date</label>
+                    <input type="date" id="date" name="date" class="form-control" th:value="${date}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="startTime">Start Time</label>
+                    <input type="time" id="startTime" name="startTime" class="form-control" th:value="${startTime}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="endTime">End Time</label>
+                    <input type="time" id="endTime" name="endTime" class="form-control" th:value="${endTime}" required>
+                </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 14px;">
+                <button type="submit" class="btn btn-primary">
+                    <span>🔍 Search Free Laboratories</span>
+                </button>
+                <a th:href="@{/student/availability(rollNo=${rollNo})}" class="btn btn-secondary">
+                    <span>Reset Filters</span>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <section class="card-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">Available Laboratories</h2>
+                <div class="panel-subtitle" th:if="${searched}">
+                    Showing laboratories without scheduling conflicts for <strong th:text="${date} + ' (' + ${startTime} + ' - ' + ${endTime} + ')'">selected time</strong>.
+                </div>
+                <div class="panel-subtitle" th:if="${!searched}">
+                    All institutional laboratories. Select a date and time slot above to filter real-time vacancies.
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container" th:if="${labs != null and !labs.empty}">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Laboratory Name</th>
+                        <th>Room Number</th>
+                        <th>Capacity</th>
+                        <th>Availability Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="lab, iter : ${labs}">
+                        <td th:text="${iter.count}">1</td>
+                        <td>
+                            <strong th:text="${lab.labName}">Computer Lab 1</strong>
+                        </td>
+                        <td>
+                            <span class="badge badge-blue" th:text="${lab.roomNumber}">Room 101</span>
+                        </td>
+                        <td>
+                            <span th:text="${lab.capacity} + ' seats'">30 seats</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-green">
+                                <span>● Free / Available</span>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-state" th:if="${labs == null or labs.empty}">
+            <div class="empty-state-icon">🔒</div>
+            <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">No Free Laboratories Found</h3>
+            <p style="font-size: 13px; color: #64748b; max-width: 420px; margin: 0 auto;">
+                All laboratories have active allocations during this slot. Try selecting an alternative time range or date.
+            </p>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>
