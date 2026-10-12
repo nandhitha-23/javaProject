@@ -1,161 +1,114 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Lab Allocations</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-            background-color: #f4f6f9;
-        }
-
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px #cccccc;
-        }
-
-        .add-button {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        .edit {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        .delete {
-            color: #dc3545;
-            text-decoration: none;
-        }
-
-        .success {
-            color: green;
-            margin-bottom: 15px;
-        }
-
-        .error {
-            color: red;
-            margin-bottom: 15px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Allocations | Smart Lab Allocation</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 
 <body>
 
-<div class="container">
+<div class="app-shell">
 
-    <h2>Lab Allocation Management</h2>
+    <!-- Reusable Sidebar Navigation -->
+    <div th:replace="~{fragments/navigation :: sidebar(activePage='allocations')}"></div>
 
-    <p class="success"
-       th:if="${successMessage}"
-       th:text="${successMessage}">
-    </p>
+    <!-- Main Content -->
+    <main class="app-main">
 
-    <p class="error"
-       th:if="${errorMessage}"
-       th:text="${errorMessage}">
-    </p>
-
-    <a class="add-button"
-       th:href="@{/allocations/add}">
-        + Add New Allocation
-    </a>
-
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Student</th>
-            <th>Lab</th>
-            <th>Date</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-
-        <tbody>
-
-        <tr th:each="allocation : ${allocations}">
-
-            <td th:text="${allocation.id}"></td>
-
-            <td th:text="${allocation.student.studentName}"></td>
-
-            <td th:text="${allocation.lab.labName}"></td>
-
-            <td th:text="${allocation.allocationDate}"></td>
-
-            <td th:text="${allocation.startTime}"></td>
-
-            <td th:text="${allocation.endTime}"></td>
-
-            <td>
-                <a class="edit"
-                   th:href="@{/allocations/edit/{id}(id=${allocation.id})}">
-                    Edit
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <h1>Laboratory Allocations</h1>
+                <p>Scheduled laboratory bookings, student sessions, and time slots.</p>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/allocations/add}" class="btn btn-primary">
+                    <span>+ New Allocation</span>
                 </a>
+            </div>
+        </header>
 
-                |
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span>✓</span>
+            <span th:text="${successMessage}"></span>
+        </div>
 
-                <a class="delete"
-                   th:href="@{/allocations/delete/{id}(id=${allocation.id})}"
-                   onclick="return confirm('Delete this allocation?');">
-                    Delete
-                </a>
-            </td>
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span>⚠</span>
+            <span th:text="${errorMessage}"></span>
+        </div>
 
-        </tr>
+        <!-- Allocations Table Panel -->
+        <section class="card-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Active Schedule Bookings</h2>
+                <span class="badge badge-purple" th:text="${#lists.size(allocations) + ' Bookings'}">0 Bookings</span>
+            </div>
 
-        <tr th:if="${#lists.isEmpty(allocations)}">
-            <td colspan="7">No allocations found.</td>
-        </tr>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Student</th>
+                        <th>Laboratory</th>
+                        <th>Scheduled Date</th>
+                        <th>Time Window</th>
+                        <th style="text-align: right; width: 180px;">Actions</th>
+                    </tr>
+                    </thead>
 
-        </tbody>
-    </table>
+                    <tbody>
+                    <tr th:each="allocation : ${allocations}">
+                        <td><span class="badge badge-purple" th:text="'#' + ${allocation.id}">#1</span></td>
+                        <td>
+                            <strong th:text="${allocation.student.studentName}">Student Name</strong>
+                        </td>
+                        <td>
+                            <span class="badge badge-blue" th:text="${allocation.lab.labName}">Lab Name</span>
+                        </td>
+                        <td>
+                            <span>📅 </span><span th:text="${allocation.allocationDate}">2026-10-15</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-green"
+                                  th:text="${allocation.startTime + ' - ' + allocation.endTime}">
+                                10:00 - 12:00
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 8px; align-items: center;">
+                                <a th:href="@{/allocations/edit/{id}(id=${allocation.id})}"
+                                   class="btn btn-edit-outline">
+                                    Edit
+                                </a>
 
-    <br>
+                                <a th:href="@{/allocations/delete/{id}(id=${allocation.id})}"
+                                   class="btn btn-danger-outline"
+                                   onclick="return confirm('Delete this laboratory allocation?');">
+                                    Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
 
-    <a th:href="@{/students}">Student Management</a>
-    |
-    <a th:href="@{/labs}">Lab Management</a>
+                    <tr th:if="${#lists.isEmpty(allocations)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <div>No laboratory allocations found. Click "+ New Allocation" to book a slot.</div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
 
 </div>
 

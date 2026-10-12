@@ -1,104 +1,88 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Student</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f1f5f9;
-            margin: 0;
-            padding: 30px;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: 30px auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            text-align: center;
-            color: #1e293b;
-        }
-
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            box-sizing: border-box;
-            border: 1px solid #cbd5e1;
-            border-radius: 5px;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 22px;
-            padding: 12px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background: #1d4ed8;
-        }
-
-        .back {
-            display: block;
-            text-align: center;
-            margin-top: 18px;
-            color: #2563eb;
-            text-decoration: none;
-        }
-
-        .error {
-            color: red;
-            font-size: 13px;
-        }
-    </style>
+    <title>Edit Student | Smart Lab Allocation</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 
 <body>
 
-<div class="container">
+<div class="app-shell">
 
-    <h2>Edit Student Details</h2>
+    <!-- Reusable Sidebar Navigation -->
+    <div th:replace="~{fragments/navigation :: sidebar(activePage='students')}"></div>
 
-    <form th:action="@{/students/update}"
-          th:object="${student}"
-          method="post">
+    <!-- Main Content -->
+    <main class="app-main">
 
-        <input type="hidden" th:field="*{studentId}">
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <h1>Edit Student Record</h1>
+                <p>Update student details and registration records.</p>
+            </div>
+            <div>
+                <a th:href="@{/students}" class="btn btn-secondary">
+                    ← Back to Students
+                </a>
+            </div>
+        </header>
 
-        <label>Student Name</label>
-        <input type="text" th:field="*{studentName}" required>
+        <!-- Edit Form Card -->
+        <section class="card-panel" style="max-width: 600px;">
+            <div class="panel-header">
+                <h2 class="panel-title">✏ Student Information</h2>
+                <span class="badge badge-purple" th:text="'Student #' + ${student.studentId}">#1</span>
+            </div>
 
-        <label>Roll Number</label>
-        <input type="text" th:field="*{rollNo}" required>
+            <form th:action="@{/students/update}"
+                  th:object="${student}"
+                  method="post">
 
-        <label>Department</label>
-        <input type="text" th:field="*{department}" required>
+                <input type="hidden" th:field="*{studentId}">
 
-        <button type="submit">Update Student</button>
+                <div class="form-group">
+                    <label class="form-label" for="studentName">Student Name</label>
+                    <input type="text"
+                           id="studentName"
+                           th:field="*{studentName}"
+                           class="form-control"
+                           required>
+                </div>
 
-    </form>
+                <div class="form-group">
+                    <label class="form-label" for="rollNo">Roll Number</label>
+                    <input type="text"
+                           id="rollNo"
+                           th:field="*{rollNo}"
+                           class="form-control"
+                           required>
+                </div>
 
-    <a class="back" th:href="@{/students}">← Back to Student List</a>
+                <div class="form-group">
+                    <label class="form-label" for="department">Department</label>
+                    <input type="text"
+                           id="department"
+                           th:field="*{department}"
+                           class="form-control"
+                           required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span>Save Changes</span>
+                    </button>
+                    <a th:href="@{/students}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        </section>
+
+    </main>
 
 </div>
 

@@ -3,165 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Admin Login | Smart Lab Allocation</title>
+    <title>Admin Portal Login | Smart Lab Allocation</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
         body {
-            margin: 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e40af);
+            background: radial-gradient(circle at 10% 20%, #0f172a 0%, #1e1b4b 50%, #090d16 100%);
+            padding: 20px;
         }
 
-        .login-container {
-            width: 90%;
-            max-width: 400px;
-            padding: 35px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: var(--radius-lg);
+            padding: 40px 36px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.4s ease-out;
         }
 
-        .logo {
+        .login-brand {
             text-align: center;
-            font-size: 45px;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #1e293b;
-            font-size: 25px;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            font-size: 14px;
             margin-bottom: 28px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-            color: #334155;
+        .login-logo {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
         }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 18px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 15px;
+        .login-brand h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
         }
 
-        input:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        .login-brand p {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
         }
 
-        button {
+        .btn-login {
             width: 100%;
             padding: 13px;
-            border: none;
-            border-radius: 8px;
-            background: #2563eb;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
+            font-size: 15px;
+            margin-top: 10px;
         }
 
-        button:hover {
-            background: #1d4ed8;
-        }
-
-        .message {
-            padding: 11px;
-            margin-bottom: 18px;
-            border-radius: 7px;
-            font-size: 14px;
+        .login-footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
             text-align: center;
-        }
-
-        .error {
-            color: #991b1b;
-            background: #fee2e2;
-        }
-
-        .success {
-            color: #166534;
-            background: #dcfce7;
-        }
-
-        .footer {
-            margin-top: 24px;
-            text-align: center;
-            color: #64748b;
             font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .demo-hint {
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: #f1f5f9;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
     </style>
 </head>
 
 <body>
 
-<div class="login-container">
+<div class="login-card">
 
-    <div class="logo">🔐</div>
-
-    <h1>Admin Login</h1>
-
-    <p class="subtitle">Smart Lab Allocation Management System</p>
-
-    <div th:if="${param.error}" class="message error">
-        Invalid username or password.
+    <div class="login-brand">
+        <div class="login-logo">🧪</div>
+        <h1>SmartLab</h1>
+        <p>Smart Lab Allocation & Management System</p>
     </div>
 
-    <div th:if="${param.logout}" class="message success">
-        You have logged out successfully.
+    <!-- Error Banner -->
+    <div th:if="${param.error}" class="alert alert-danger">
+        <span>⚠</span>
+        <span>Invalid credentials. Please verify username and password.</span>
     </div>
 
+    <!-- Logout Banner -->
+    <div th:if="${param.logout}" class="alert alert-success">
+        <span>✓</span>
+        <span>You have been securely signed out.</span>
+    </div>
+
+    <!-- Login Form -->
     <form th:action="@{/login}" method="post">
 
-        <label for="username">Username</label>
+        <div class="form-group">
+            <label class="form-label" for="username">Admin Username</label>
+            <input type="text"
+                   id="username"
+                   name="username"
+                   class="form-control"
+                   placeholder="Enter username"
+                   autocomplete="username"
+                   required
+                   autofocus>
+        </div>
 
-        <input
-            type="text"
-            id="username"
-            name="username"
-            placeholder="Enter admin username"
-            autocomplete="username"
-            required
-            autofocus>
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password"
+                   id="password"
+                   name="password"
+                   class="form-control"
+                   placeholder="Enter password"
+                   autocomplete="current-password"
+                   required>
+        </div>
 
-        <label for="password">Password</label>
-
-        <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Enter admin password"
-            autocomplete="current-password"
-            required>
-
-        <button type="submit">Login</button>
+        <button type="submit" class="btn btn-primary btn-login">
+            <span>Sign In to Dashboard →</span>
+        </button>
 
     </form>
 
-    <div class="footer">
-        &copy; 2026 Smart Lab Allocation System
+    <div class="demo-hint">
+        <span>Default Access:</span>
+        <code>admin / java</code>
+    </div>
+
+    <div class="login-footer">
+        &copy; 2026 Smart Lab Allocation Management System
     </div>
 
 </div>

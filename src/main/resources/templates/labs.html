@@ -3,116 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab Management</title>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #f4f6f9;
-        }
-
-        h1 {
-            color: #243b55;
-            text-align: center;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-        }
-
-        .add-btn {
-            display: inline-block;
-            background: #198754;
-            color: white;
-            padding: 10px 16px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        th {
-            background: #243b55;
-            color: white;
-        }
-
-        .edit-btn {
-            color: #0d6efd;
-        }
-
-        .delete-btn {
-            color: #dc3545;
-        }
-
-        .message {
-            color: green;
-            margin-bottom: 15px;
-        }
-    </style>
+    <title>Laboratories | Smart Lab Allocation</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 
 <body>
 
-<div class="container">
+<div class="app-shell">
 
-    <h1>Lab Management</h1>
+    <!-- Reusable Sidebar Navigation -->
+    <div th:replace="~{fragments/navigation :: sidebar(activePage='labs')}"></div>
 
-    <p class="message" th:if="${successMessage}"
-       th:text="${successMessage}"></p>
+    <!-- Main Content -->
+    <main class="app-main">
 
-    <a class="add-btn" th:href="@{/labs/add}">+ Add New Lab</a>
-
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Lab Name</th>
-            <th>Location</th>
-            <th>Capacity</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr th:each="lab : ${labs}">
-            <td th:text="${lab.id}"></td>
-            <td th:text="${lab.labName}"></td>
-            <td th:text="${lab.location}"></td>
-            <td th:text="${lab.capacity}"></td>
-            <td>
-                <a class="edit-btn"
-                   th:href="@{/labs/edit/{id}(id=${lab.id})}">Edit</a>
-
-                |
-
-                <a class="delete-btn"
-                   th:href="@{/labs/delete/{id}(id=${lab.id})}"
-                   onclick="return confirm('Are you sure you want to delete this lab?')">
-                    Delete
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <h1>Laboratory Facilities</h1>
+                <p>Manage campus laboratories, workstations, and maximum seating capacities.</p>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/labs/add}" class="btn btn-primary">
+                    <span>+ Add New Lab</span>
                 </a>
-            </td>
-        </tr>
+            </div>
+        </header>
 
-        <tr th:if="${#lists.isEmpty(labs)}">
-            <td colspan="5">No labs available. Please add a lab.</td>
-        </tr>
-        </tbody>
-    </table>
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span>✓</span>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Labs List Panel -->
+        <section class="card-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Available Laboratories</h2>
+                <span class="badge badge-emerald" th:text="${#lists.size(labs) + ' Facilities'}">0 Facilities</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Laboratory Name</th>
+                        <th>Location / Room</th>
+                        <th>Seating Capacity</th>
+                        <th style="text-align: right; width: 180px;">Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="lab : ${labs}">
+                        <td><span class="badge badge-purple" th:text="'#' + ${lab.id}">#1</span></td>
+                        <td>
+                            <strong th:text="${lab.labName}">Lab Name</strong>
+                        </td>
+                        <td>
+                            <span>📍 </span><span th:text="${lab.location}">Room 101</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-green" th:text="${lab.capacity} + ' Seats'">30 Seats</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 8px; align-items: center;">
+                                <a th:href="@{/labs/edit/{id}(id=${lab.id})}"
+                                   class="btn btn-edit-outline">
+                                    Edit
+                                </a>
+
+                                <a th:href="@{/labs/delete/{id}(id=${lab.id})}"
+                                   class="btn btn-danger-outline"
+                                   onclick="return confirm('Are you sure you want to delete this laboratory?');">
+                                    Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(labs)}">
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🧪</div>
+                                <div>No laboratories configured. Click "+ Add New Lab" to create one.</div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
 
 </div>
 
