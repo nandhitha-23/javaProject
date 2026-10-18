@@ -2,6 +2,7 @@ package com.smartlab.demo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ public class LabAvailabilityController {
     public LabAvailabilityController(
             LabRepository labRepository,
             LabAllocationRepository allocationRepository) {
+
         this.labRepository = labRepository;
         this.allocationRepository = allocationRepository;
     }
@@ -29,52 +31,127 @@ public class LabAvailabilityController {
             @RequestParam(required = false) String endTime,
             Model model) {
 
-        List<Lab> availableLabs = labRepository.findAll();
+        model.addAttribute("searched", false);
+        model.addAttribute("date", date);
+        model.addAttribute("startTime", startTime);
+        model.addAttribute("endTime", endTime);
 
-        if (date != null && !date.isBlank()
-                && startTime != null && !startTime.isBlank()
-                && endTime != null && !endTime.isBlank()) {
+        List<Lab> labs = labRepository.findAll();
 
+        // If search fields are empty, display all labs
+        if (date == null || date.isBlank()
+                || startTime == null || startTime.isBlank()
+                || endTime == null || endTime.isBlank()) {
+
+            model.addAttribute("labs", labs);
+            return "lab-availability";
+        }
+
+        try {
             LocalDate selectedDate = LocalDate.parse(date);
             LocalTime selectedStart = LocalTime.parse(startTime);
             LocalTime selectedEnd = LocalTime.parse(endTime);
 
+            // Validate date
+            if (selectedDate.isBefore(LocalDate.now())) {
+                model.addAttribute(
+                        "error",
+                        "Please select today or a future date.");
+
+                model.addAttribute("labs", List.of());
+                return "lab-availability";
+            }
+
+            // Validate time
             if (!selectedEnd.isAfter(selectedStart)) {
                 model.addAttribute(
                         "error",
                         "End time must be after start time.");
 
                 model.addAttribute("labs", List.of());
-                model.addAttribute("searched", false);
-
                 return "lab-availability";
             }
 
-            availableLabs = availableLabs.stream()
-                    .filter(lab -> allocationRepository.findAll()
-                            .stream()
-                            .noneMatch(allocation ->
-                                    allocation.getLab() != null
-                                            && allocation.getLab().getId()
-                                                    .equals(lab.getId())
-                                            && allocation.getAllocationDate()
-                                                    .equals(selectedDate)
-                                            && allocation.getStartTime()
-                                                    .isBefore(selectedEnd)
-                                            && allocation.getEndTime()
-                                                    .isAfter(selectedStart)))
+            // Get all allocations once
+            List<LabAllocation> allocations =
+                    allocationRepository.findAll();
+
+            // A lab is available if at least one seat is free
+            List<Lab> availableLabs = labs.stream()
+                    .filter(lab -> {
+
+                        // Check each seat in this lab
+                        for (int seat = 1;
+                                seat <= lab.getCapacity();
+                                seat++) {
+
+                            // FIX: Create a final copy for the lambda
+                            final int currentSeat = seat;
+
+                            boolean booked = allocations.stream()
+                                    .anyMatch(allocation -> {
+
+                                        if (allocation.getLab() == null
+                                                || allocation.getLab().getId() == null
+                                                || lab.getId() == null) {
+                                            return false;
+                                        }
+
+                                        // Check lab ID
+                                        if (!allocation.getLab().getId()
+                                                .equals(lab.getId())) {
+                                            return false;
+                                        }
+
+                                        // Validate allocation fields
+                                        if (allocation.getAllocationDate() == null
+                                                || allocation.getStartTime() == null
+                                                || allocation.getEndTime() == null) {
+                                            return false;
+                                        }
+
+                                        // Check selected date
+                                        if (!allocation.getAllocationDate()
+                                                .equals(selectedDate)) {
+                                            return false;
+                                        }
+
+                                        // Check seat number
+                                        if (allocation.getSeatNumber() == null
+                                                || allocation.getSeatNumber()
+                                                        != currentSeat) {
+                                            return false;
+                                        }
+
+                                        // Check time overlap
+                                        return allocation.getStartTime()
+                                                .isBefore(selectedEnd)
+                                                && allocation.getEndTime()
+                                                        .isAfter(selectedStart);
+                                    });
+
+                            // One free seat makes the lab available
+                            if (!booked) {
+                                return true;
+                            }
+                        }
+
+                        // Every seat is booked
+                        return false;
+                    })
                     .toList();
 
+            model.addAttribute("labs", availableLabs);
             model.addAttribute("searched", true);
 
-        } else {
-            model.addAttribute("searched", false);
-        }
+        } catch (DateTimeParseException e) {
 
-        model.addAttribute("labs", availableLabs);
-        model.addAttribute("date", date);
-        model.addAttribute("startTime", startTime);
-        model.addAttribute("endTime", endTime);
+            model.addAttribute(
+                    "error",
+                    "Invalid date or time. Please select valid values.");
+
+            model.addAttribute("labs", List.of());
+        }
 
         return "lab-availability";
     }

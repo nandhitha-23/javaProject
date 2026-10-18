@@ -1,14 +1,16 @@
 package com.smartlab.demo;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 import com.smartlab.demo.model.Student;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class LabAllocation {
@@ -30,6 +32,9 @@ public class LabAllocation {
     private LocalTime startTime;
 
     private LocalTime endTime;
+
+    // New field for individual seat allocation
+    private Integer seatNumber;
 
     public LabAllocation() {
     }
@@ -80,5 +85,13 @@ public class LabAllocation {
 
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
+    }
+
+    public Integer getSeatNumber() {
+        return seatNumber;
+    }
+
+    public void setSeatNumber(Integer seatNumber) {
+        this.seatNumber = seatNumber;
     }
 }
