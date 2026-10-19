@@ -263,6 +263,19 @@
 
         </section>
 
+        <!-- Initial state guidance panel -->
+        <section class="card-panel" th:if="${!searched}">
+            <div class="empty-state">
+                <div class="empty-state-icon">🔍</div>
+                <div style="font-weight: 600; font-size: 16px; margin-bottom: 6px; color: var(--text-main);">
+                    Check Laboratory Availability
+                </div>
+                <div style="color: var(--text-muted); max-width: 480px; margin: 0 auto; line-height: 1.5;">
+                    Select a date, start time, and end time in the filter form above, then click <strong>Check Availability</strong> to view vacant laboratories and book individual seats.
+                </div>
+            </div>
+        </section>
+
     </main>
 
 </div>

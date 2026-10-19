@@ -116,18 +116,22 @@ public class LabAvailabilityController {
                                             return false;
                                         }
 
-                                        // Check seat number
-                                        if (allocation.getSeatNumber() == null
-                                                || allocation.getSeatNumber()
-                                                        != currentSeat) {
-                                            return false;
-                                        }
-
                                         // Check time overlap
-                                        return allocation.getStartTime()
+                                        boolean timeOverlap = allocation.getStartTime()
                                                 .isBefore(selectedEnd)
                                                 && allocation.getEndTime()
                                                         .isAfter(selectedStart);
+                                        if (!timeOverlap) {
+                                            return false;
+                                        }
+
+                                        // If whole lab is allocated (seatNumber is null), all seats are booked
+                                        if (allocation.getSeatNumber() == null) {
+                                            return true;
+                                        }
+
+                                        // Check seat number
+                                        return allocation.getSeatNumber().equals(currentSeat);
                                     });
 
                             // One free seat makes the lab available

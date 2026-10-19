@@ -399,13 +399,14 @@
             </div>
         </div>
 
-        <div class="stat-card">
+        <a th:href="@{/student/labs(rollNo=${rollNo})}" class="stat-card" style="text-decoration: none; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
             <div class="stat-icon amber">🧪</div>
             <div class="stat-details">
                 <div class="label">Total Campus Labs</div>
                 <div class="value" th:text="${totalLabsCount}">0</div>
+                <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;">View Directory →</div>
             </div>
-        </div>
+        </a>
 
     </section>
 
@@ -430,8 +431,8 @@
                 </div>
                 <div class="session-lab" th:text="${item.lab != null ? item.lab.labName : 'Lab N/A'}">Computer Lab 1</div>
                 <div class="session-room">
-                    <span>📍 Room: </span>
-                    <strong th:text="${item.lab != null ? item.lab.roomNumber : 'TBD'}">Room 101</strong>
+                    <span>📍 Location: </span>
+                    <strong th:text="${item.lab != null ? (item.lab.location != null ? item.lab.location : 'Campus Lab') : 'TBD'}">Room 101</strong>
                     <span style="margin-left: 10px;">👥 Capacity: </span>
                     <span th:text="${item.lab != null ? item.lab.capacity : 'N/A'}">30</span>
                 </div>
@@ -461,7 +462,7 @@
                         <th>Date</th>
                         <th>Time Slot</th>
                         <th>Laboratory</th>
-                        <th>Room No.</th>
+                        <th>Location / Room</th>
                         <th>Capacity</th>
                         <th>Status</th>
                     </tr>
@@ -478,7 +479,7 @@
                             <strong th:text="${alloc.lab != null ? alloc.lab.labName : 'N/A'}">Computer Network Lab</strong>
                         </td>
                         <td>
-                            <span th:text="${alloc.lab != null ? alloc.lab.roomNumber : 'N/A'}">Lab-204</span>
+                            <span th:text="${alloc.lab != null ? (alloc.lab.location != null ? alloc.lab.location : 'Campus Lab') : 'N/A'}">Lab-204</span>
                         </td>
                         <td>
                             <span th:text="${alloc.lab != null ? alloc.lab.capacity + ' seats' : 'N/A'}">40 seats</span>

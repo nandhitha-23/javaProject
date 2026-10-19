@@ -56,4 +56,14 @@ public class Lab {
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
+
+    public String getRoomNumber() {
+        return location != null && !location.isBlank() ? location : "Facility #" + (id != null ? id : "N/A");
+    }
+
+    public void setRoomNumber(String roomNumber) {
+        if (this.location == null || this.location.isBlank()) {
+            this.location = roomNumber;
+        }
+    }
 }

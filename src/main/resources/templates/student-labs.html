@@ -164,7 +164,10 @@
 
     <div class="page-header">
         <div class="page-title">
-            <h1>Campus Laboratories Directory</h1>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                <h1 style="margin-bottom: 0;">Campus Laboratories Directory</h1>
+                <span class="badge badge-emerald" th:text="${#lists.size(labs) + ' Laboratories'}">0 Laboratories</span>
+            </div>
             <p>Overview of all campus laboratory facilities, seating capacities, and room assignments.</p>
         </div>
         <div class="header-actions">
@@ -185,8 +188,8 @@
 
             <div style="padding-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block;">Room</span>
-                    <span class="badge badge-blue" th:text="${lab.roomNumber}">Room 101</span>
+                    <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block;">Location / Room</span>
+                    <span class="badge badge-blue" th:text="${lab.location != null ? lab.location : 'Campus Facility'}">Room 101</span>
                 </div>
                 <div style="text-align: right;">
                     <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block;">Capacity</span>
