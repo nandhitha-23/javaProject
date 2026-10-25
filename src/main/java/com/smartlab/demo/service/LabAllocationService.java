@@ -1,11 +1,15 @@
-package com.smartlab.demo;
-import com.smartlab.demo.model.Student;
-import com.smartlab.demo.repository.StudentRepository;
+package com.smartlab.demo.service;
 
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.smartlab.demo.LabAllocation;
+import com.smartlab.demo.model.Lab;
+import com.smartlab.demo.model.Student;
+import com.smartlab.demo.repository.LabAllocationRepository;
+import com.smartlab.demo.repository.LabRepository;
+import com.smartlab.demo.repository.StudentRepository;
 
 @Service
 public class LabAllocationService {

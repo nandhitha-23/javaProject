@@ -1,9 +1,12 @@
-package com.smartlab.demo;
+package com.smartlab.demo.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.smartlab.demo.model.Lab;
+import com.smartlab.demo.service.LabService;
 
 @Controller
 public class LabController {

@@ -1,9 +1,11 @@
-package com.smartlab.demo;
+package com.smartlab.demo.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.smartlab.demo.repository.LabAllocationRepository;
+import com.smartlab.demo.repository.LabRepository;
 import com.smartlab.demo.repository.StudentRepository;
 
 @Controller

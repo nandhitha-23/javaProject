@@ -1,4 +1,4 @@
-package com.smartlab.demo;
+package com.smartlab.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

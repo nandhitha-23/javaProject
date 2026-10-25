@@ -10,7 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.smartlab.demo.Lab;
+import com.smartlab.demo.model.Lab;
 import com.smartlab.demo.LabAllocation;
 import com.smartlab.demo.repository.LabAllocationRepository;
 import com.smartlab.demo.repository.LabRepository;

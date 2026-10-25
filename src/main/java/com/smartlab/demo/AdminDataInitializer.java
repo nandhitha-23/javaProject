@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.smartlab.demo.model.Admin;
+import com.smartlab.demo.repository.AdminRepository;
+
 @Configuration
 public class AdminDataInitializer {
 

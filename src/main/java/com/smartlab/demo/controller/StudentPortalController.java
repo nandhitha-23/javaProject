@@ -1,9 +1,9 @@
 package com.smartlab.demo.controller;
 
-import com.smartlab.demo.Lab;
 import com.smartlab.demo.LabAllocation;
-import com.smartlab.demo.LabAllocationRepository;
-import com.smartlab.demo.LabRepository;
+import com.smartlab.demo.model.Lab;
+import com.smartlab.demo.repository.LabAllocationRepository;
+import com.smartlab.demo.repository.LabRepository;
 import com.smartlab.demo.model.Student;
 import com.smartlab.demo.repository.StudentRepository;
 import org.springframework.stereotype.Controller;

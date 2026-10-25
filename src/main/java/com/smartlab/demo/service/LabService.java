@@ -1,7 +1,11 @@
-package com.smartlab.demo;
+package com.smartlab.demo.service;
+
+import java.util.List;
 
 import org.springframework.stereotype.Service;
-import java.util.List;
+
+import com.smartlab.demo.model.Lab;
+import com.smartlab.demo.repository.LabRepository;
 
 @Service
 public class LabService {
