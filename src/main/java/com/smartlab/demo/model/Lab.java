@@ -1,4 +1,4 @@
-package com.smartlab.demo;
+package com.smartlab.demo.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
