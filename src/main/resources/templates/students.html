@@ -1,5 +1,7 @@
+
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,33 +13,32 @@
 
 <div class="app-shell">
 
-    <!-- Reusable Sidebar Navigation -->
     <div th:replace="~{fragments/navigation :: sidebar(activePage='students')}"></div>
 
-    <!-- Main Content -->
     <main class="app-main">
 
-        <!-- Page Header -->
         <header class="page-header">
             <div class="page-title">
                 <h1>Student Directory</h1>
-                <p>Register new students and manage student credentials.</p>
+                <p>Register students and manage their accounts.</p>
             </div>
         </header>
 
-        <!-- Flash Messages -->
+        <!-- Success message -->
         <div th:if="${successMessage}" class="alert alert-success">
             <span>✓</span>
             <span th:text="${successMessage}"></span>
         </div>
 
+        <!-- Error message -->
         <div th:if="${errorMessage}" class="alert alert-danger">
             <span>⚠</span>
             <span th:text="${errorMessage}"></span>
         </div>
 
-        <!-- Add Student Panel -->
+        <!-- Registration form -->
         <section class="card-panel">
+
             <div class="panel-header">
                 <h2 class="panel-title">➕ Register New Student</h2>
             </div>
@@ -47,77 +48,141 @@
                   method="post">
 
                 <div class="form-grid-3">
+
                     <div class="form-group">
-                        <label class="form-label" for="studentName">Full Name</label>
+                        <label class="form-label" for="studentName">
+                            Full Name
+                        </label>
+
                         <input type="text"
                                id="studentName"
                                th:field="*{studentName}"
                                class="form-control"
-                               placeholder="e.g. John Doe"
+                               placeholder="Enter student name"
                                required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="rollNo">Roll Number</label>
+                        <label class="form-label" for="rollNo">
+                            Roll Number
+                        </label>
+
                         <input type="text"
                                id="rollNo"
                                th:field="*{rollNo}"
                                class="form-control"
-                               placeholder="e.g. CS2026-101"
+                               placeholder="Enter roll number"
                                required>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" for="department">Department</label>
+                        <label class="form-label" for="department">
+                            Department
+                        </label>
+
                         <input type="text"
                                id="department"
                                th:field="*{department}"
                                class="form-control"
-                               placeholder="e.g. Computer Science"
+                               placeholder="Enter department"
                                required>
                     </div>
+
+                    <!-- New password field -->
+                    <div class="form-group">
+                        <label class="form-label" for="password">
+                            Student Password
+                        </label>
+
+                        <input type="password"
+                               id="password"
+                               th:field="*{password}"
+                               class="form-control"
+                               placeholder="Create a password"
+                               minlength="8"
+                               autocomplete="new-password"
+                               required>
+
+                        <small>
+                            Use at least 8 characters.
+                        </small>
+                    </div>
+
                 </div>
 
                 <div class="form-actions" style="margin-top: 10px;">
                     <button type="submit" class="btn btn-primary">
-                        <span>Save Student</span>
+                        Register Student
                     </button>
                 </div>
 
             </form>
+
         </section>
 
-        <!-- Student List Table Panel -->
+        <!-- Student list -->
         <section class="card-panel">
+
             <div class="panel-header">
                 <h2 class="panel-title">Enrolled Students</h2>
-                <span class="badge badge-blue" th:text="${#lists.size(students) + ' Total'}">0 Total</span>
+
+                <span class="badge badge-blue"
+                      th:text="${#lists.size(students)} + ' Total'">
+                    0 Total
+                </span>
             </div>
 
             <div class="table-responsive">
+
                 <table class="data-table">
+
                     <thead>
                     <tr>
                         <th style="width: 80px;">ID</th>
                         <th>Student Name</th>
                         <th>Roll Number</th>
                         <th>Department</th>
-                        <th style="text-align: right; width: 180px;">Actions</th>
+                        <th style="text-align: right; width: 180px;">
+                            Actions
+                        </th>
                     </tr>
                     </thead>
 
                     <tbody>
+
                     <tr th:each="s : ${students}">
-                        <td><span class="badge badge-purple" th:text="'#' + ${s.studentId}">#1</span></td>
+
                         <td>
-                            <strong th:text="${s.studentName}">Student Name</strong>
+                            <span class="badge badge-purple"
+                                  th:text="'#' + ${s.studentId}">
+                                #1
+                            </span>
                         </td>
-                        <td><code style="font-weight: 600;" th:text="${s.rollNo}">ROLL-001</code></td>
+
                         <td>
-                            <span class="badge badge-blue" th:text="${s.department}">Department</span>
+                            <strong th:text="${s.studentName}">
+                                Student Name
+                            </strong>
                         </td>
+
+                        <td>
+                            <code style="font-weight: 600;"
+                                  th:text="${s.rollNo}">
+                                ROLL-001
+                            </code>
+                        </td>
+
+                        <td>
+                            <span class="badge badge-blue"
+                                  th:text="${s.department}">
+                                Department
+                            </span>
+                        </td>
+
                         <td style="text-align: right;">
+
                             <div style="display: inline-flex; gap: 8px; align-items: center;">
+
                                 <a th:href="@{/students/edit/{id}(id=${s.studentId})}"
                                    class="btn btn-edit-outline">
                                     Edit
@@ -126,26 +191,39 @@
                                 <form th:action="@{/students/delete/{id}(id=${s.studentId})}"
                                       method="post"
                                       style="display: inline;"
-                                      onsubmit="return confirm('Are you sure you want to delete this student record?');">
-                                    <button type="submit" class="btn btn-danger-outline">
+                                      onsubmit="return confirm('Are you sure you want to delete this student?');">
+
+                                    <button type="submit"
+                                            class="btn btn-danger-outline">
                                         Delete
                                     </button>
+
                                 </form>
+
                             </div>
+
                         </td>
+
                     </tr>
 
                     <tr th:if="${#lists.isEmpty(students)}">
                         <td colspan="5">
                             <div class="empty-state">
                                 <div class="empty-state-icon">👨‍🎓</div>
-                                <div>No students enrolled yet. Use the form above to add a student.</div>
+                                <div>
+                                    No students enrolled yet.
+                                    Use the form above to register a student.
+                                </div>
                             </div>
                         </td>
                     </tr>
+
                     </tbody>
+
                 </table>
+
             </div>
+
         </section>
 
     </main>

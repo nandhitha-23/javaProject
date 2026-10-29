@@ -1,112 +1,188 @@
+
 package com.smartlab.demo.controller;
 
-import com.smartlab.demo.LabAllocation;
-import com.smartlab.demo.model.Lab;
-import com.smartlab.demo.repository.LabAllocationRepository;
-import com.smartlab.demo.repository.LabRepository;
-import com.smartlab.demo.model.Student;
-import com.smartlab.demo.repository.StudentRepository;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.smartlab.demo.LabAllocation;
+import com.smartlab.demo.model.Lab;
+import com.smartlab.demo.model.Student;
+import com.smartlab.demo.repository.LabAllocationRepository;
+import com.smartlab.demo.repository.LabRepository;
+import com.smartlab.demo.repository.StudentRepository;
+
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class StudentPortalController {
+
+    private static final String STUDENT_SESSION_KEY =
+            "authenticatedStudentRollNo";
 
     private final StudentRepository studentRepository;
     private final LabAllocationRepository allocationRepository;
     private final LabRepository labRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public StudentPortalController(
             StudentRepository studentRepository,
             LabAllocationRepository allocationRepository,
-            LabRepository labRepository) {
+            LabRepository labRepository,
+            PasswordEncoder passwordEncoder) {
+
         this.studentRepository = studentRepository;
         this.allocationRepository = allocationRepository;
         this.labRepository = labRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * Student Portal Landing Page - Roll Number Entry
+    /*
+     * Student login page
+     * Registered student details are not sent to this page.
      */
     @GetMapping({"/student", "/student/portal"})
     public String showPortal(
             @RequestParam(required = false) String error,
             @RequestParam(required = false) String rollNo,
-            Model model) {
+            Model model,
+            HttpSession session) {
+
+        // If a student is already logged in, open their dashboard.
+        String authenticatedRollNo =
+                (String) session.getAttribute(STUDENT_SESSION_KEY);
+
+        if (authenticatedRollNo != null) {
+            return "redirect:/student/dashboard";
+        }
 
         model.addAttribute("error", error);
         model.addAttribute("enteredRollNo", rollNo);
-        model.addAttribute("registeredStudents", studentRepository.findAll());
 
         return "student-portal";
     }
 
-    /**
-     * Form submission from Roll Number lookup form
+    /*
+     * Authenticate student using roll number and password.
      */
     @PostMapping("/student/portal")
-    public String handlePortalLookup(@RequestParam("rollNo") String rollNo) {
-        if (rollNo == null || rollNo.trim().isBlank()) {
+    public String handlePortalLookup(
+            @RequestParam("rollNo") String rollNo,
+            @RequestParam("password") String password,
+            HttpSession session) {
+
+        if (rollNo == null || rollNo.isBlank()
+                || password == null || password.isBlank()) {
+
             return "redirect:/student/portal?error=empty";
         }
-        String cleanRoll = rollNo.trim();
-        return "redirect:/student/dashboard?rollNo=" + URLEncoder.encode(cleanRoll, StandardCharsets.UTF_8);
+
+        String cleanRollNo = rollNo.trim();
+
+        Optional<Student> studentOptional =
+                studentRepository.findByRollNo(cleanRollNo);
+
+        if (studentOptional.isEmpty()) {
+            return "redirect:/student/portal?error=invalid";
+        }
+
+        Student student = studentOptional.get();
+
+        /*
+         * Accounts without a password cannot log in.
+         * Passwords must be stored as BCrypt hashes.
+         */
+        if (student.getPassword() == null
+                || student.getPassword().isBlank()
+                || !passwordEncoder.matches(
+                        password,
+                        student.getPassword())) {
+
+            return "redirect:/student/portal?error=invalid";
+        }
+
+        /*
+         * Change the session ID after successful authentication
+         * to help prevent session fixation.
+         */
+        session.setAttribute(STUDENT_SESSION_KEY, student.getRollNo());
+
+        return "redirect:/student/dashboard";
     }
 
-    /**
-     * Student Personalized Dashboard
+    /*
+     * Student dashboard
+     * Identity is obtained from the session, not from a URL parameter.
      */
     @GetMapping("/student/dashboard")
     public String studentDashboard(
-            @RequestParam(value = "rollNo", required = false) String rollNo,
+            HttpSession session,
             Model model) {
 
-        if (rollNo == null || rollNo.trim().isBlank()) {
+        String authenticatedRollNo = getAuthenticatedRollNo(session);
+
+        if (authenticatedRollNo == null) {
             return "redirect:/student/portal";
         }
 
-        String cleanRoll = rollNo.trim();
-        Optional<Student> studentOpt = studentRepository.findByRollNo(cleanRoll);
+        Optional<Student> studentOptional =
+                studentRepository.findByRollNo(authenticatedRollNo);
 
-        if (studentOpt.isEmpty()) {
-            return "redirect:/student/portal?error=notfound&rollNo=" +
-                    URLEncoder.encode(cleanRoll, StandardCharsets.UTF_8);
+        if (studentOptional.isEmpty()) {
+            session.removeAttribute(STUDENT_SESSION_KEY);
+            return "redirect:/student/portal?error=invalid";
         }
 
-        Student student = studentOpt.get();
+        Student student = studentOptional.get();
+
         List<LabAllocation> allAllocations =
-                allocationRepository.findByStudent_RollNoOrderByAllocationDateAscStartTimeAsc(student.getRollNo());
+                allocationRepository
+                        .findByStudent_RollNoOrderByAllocationDateAscStartTimeAsc(
+                                student.getRollNo());
 
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
 
-        List<LabAllocation> todayAllocations = allAllocations.stream()
-                .filter(a -> a.getAllocationDate().isEqual(today))
-                .toList();
+        List<LabAllocation> todayAllocations =
+                allAllocations.stream()
+                        .filter(a -> a.getAllocationDate() != null
+                                && a.getAllocationDate().isEqual(today))
+                        .toList();
 
-        List<LabAllocation> upcomingAllocations = allAllocations.stream()
-                .filter(a -> a.getAllocationDate().isAfter(today)
-                        || (a.getAllocationDate().isEqual(today) && a.getEndTime().isAfter(now)))
-                .toList();
+        List<LabAllocation> upcomingAllocations =
+                allAllocations.stream()
+                        .filter(a -> a.getAllocationDate() != null
+                                && (a.getAllocationDate().isAfter(today)
+                                || (a.getAllocationDate().isEqual(today)
+                                && a.getEndTime() != null
+                                && a.getEndTime().isAfter(now))))
+                        .toList();
 
-        List<LabAllocation> pastAllocations = allAllocations.stream()
-                .filter(a -> a.getAllocationDate().isBefore(today)
-                        || (a.getAllocationDate().isEqual(today) && a.getEndTime().isBefore(now)))
-                .toList();
+        List<LabAllocation> pastAllocations =
+                allAllocations.stream()
+                        .filter(a -> a.getAllocationDate() != null
+                                && (a.getAllocationDate().isBefore(today)
+                                || (a.getAllocationDate().isEqual(today)
+                                && a.getEndTime() != null
+                                && a.getEndTime().isBefore(now))))
+                        .toList();
+
+        /*
+         * Do not send the stored password hash to the view model.
+         */
+        student.setPassword(null);
 
         model.addAttribute("student", student);
-        model.addAttribute("rollNo", student.getRollNo());
+        model.addAttribute("rollNo", authenticatedRollNo);
         model.addAttribute("allocations", allAllocations);
         model.addAttribute("todayAllocations", todayAllocations);
         model.addAttribute("upcomingAllocations", upcomingAllocations);
@@ -120,16 +196,34 @@ public class StudentPortalController {
         return "student-dashboard";
     }
 
-    /**
-     * Lab Availability Finder for Students
+    /*
+     * Student lab availability page
+     * Only the authenticated student's session is used for identity.
      */
     @GetMapping("/student/availability")
     public String checkStudentLabAvailability(
-            @RequestParam(required = false) String rollNo,
             @RequestParam(required = false) String date,
             @RequestParam(required = false) String startTime,
             @RequestParam(required = false) String endTime,
+            HttpSession session,
             Model model) {
+
+        String authenticatedRollNo = getAuthenticatedRollNo(session);
+
+        if (authenticatedRollNo == null) {
+            return "redirect:/student/portal";
+        }
+
+        Optional<Student> studentOptional =
+                studentRepository.findByRollNo(authenticatedRollNo);
+
+        if (studentOptional.isEmpty()) {
+            session.removeAttribute(STUDENT_SESSION_KEY);
+            return "redirect:/student/portal?error=invalid";
+        }
+
+        Student student = studentOptional.get();
+        student.setPassword(null);
 
         List<Lab> labs = labRepository.findAll();
         boolean searched = false;
@@ -144,55 +238,90 @@ public class StudentPortalController {
                 LocalTime selectedEnd = LocalTime.parse(endTime);
 
                 if (selectedDate.isBefore(LocalDate.now())) {
-                    model.addAttribute("error", "Please select today or a future date.");
-                    model.addAttribute("labs", List.of());
-                } else if (!selectedEnd.isAfter(selectedStart)) {
-                    model.addAttribute("error", "End time must be after start time.");
-                    model.addAttribute("labs", List.of());
-                } else {
-                    List<LabAllocation> allocations = allocationRepository.findAll();
 
-                    // A lab is available if at least one seat is free
+                    model.addAttribute(
+                            "error",
+                            "Please select today or a future date.");
+
+                    model.addAttribute("labs", List.of());
+
+                } else if (!selectedEnd.isAfter(selectedStart)) {
+
+                    model.addAttribute(
+                            "error",
+                            "End time must be after start time.");
+
+                    model.addAttribute("labs", List.of());
+
+                } else {
+
+                    List<LabAllocation> allocations =
+                            allocationRepository.findAll();
+
+                    /*
+                     * A lab is available if at least one seat is free
+                     * for the selected date and time.
+                     */
                     List<Lab> availableLabs = labs.stream()
                             .filter(lab -> {
-                                for (int seat = 1; seat <= lab.getCapacity(); seat++) {
+
+                                for (int seat = 1;
+                                     seat <= lab.getCapacity();
+                                     seat++) {
+
                                     final int currentSeat = seat;
 
-                                    boolean booked = allocations.stream().anyMatch(allocation -> {
-                                        if (allocation.getLab() == null
-                                                || allocation.getLab().getId() == null
-                                                || !allocation.getLab().getId().equals(lab.getId())) {
-                                            return false;
-                                        }
+                                    boolean booked =
+                                            allocations.stream().anyMatch(
+                                                    allocation -> {
 
-                                        if (allocation.getAllocationDate() == null
-                                                || !allocation.getAllocationDate().equals(selectedDate)) {
-                                            return false;
-                                        }
+                                                if (allocation.getLab() == null
+                                                        || allocation.getLab().getId() == null
+                                                        || lab.getId() == null
+                                                        || !allocation.getLab()
+                                                        .getId()
+                                                        .equals(lab.getId())) {
+                                                    return false;
+                                                }
 
-                                        if (allocation.getStartTime() == null || allocation.getEndTime() == null) {
-                                            return false;
-                                        }
+                                                if (allocation.getAllocationDate() == null
+                                                        || !allocation.getAllocationDate()
+                                                        .equals(selectedDate)) {
+                                                    return false;
+                                                }
 
-                                        boolean timeOverlap = allocation.getStartTime().isBefore(selectedEnd)
-                                                && allocation.getEndTime().isAfter(selectedStart);
-                                        if (!timeOverlap) {
-                                            return false;
-                                        }
+                                                if (allocation.getStartTime() == null
+                                                        || allocation.getEndTime() == null) {
+                                                    return false;
+                                                }
 
-                                        // If whole lab is allocated (seatNumber is null), all seats are booked
-                                        if (allocation.getSeatNumber() == null) {
-                                            return true;
-                                        }
+                                                boolean timeOverlap =
+                                                        allocation.getStartTime()
+                                                                .isBefore(selectedEnd)
+                                                        && allocation.getEndTime()
+                                                                .isAfter(selectedStart);
 
-                                        return allocation.getSeatNumber().equals(currentSeat);
-                                    });
+                                                if (!timeOverlap) {
+                                                    return false;
+                                                }
 
-                                    // If at least one seat is free, the lab is available
+                                                /*
+                                                 * If seatNumber is null,
+                                                 * the whole lab is allocated.
+                                                 */
+                                                if (allocation.getSeatNumber() == null) {
+                                                    return true;
+                                                }
+
+                                                return allocation.getSeatNumber()
+                                                        .equals(currentSeat);
+                                            });
+
                                     if (!booked) {
                                         return true;
                                     }
                                 }
+
                                 return false;
                             })
                             .toList();
@@ -202,46 +331,82 @@ public class StudentPortalController {
                 }
 
             } catch (DateTimeParseException e) {
-                model.addAttribute("error", "Invalid date or time format. Please check your inputs.");
+
+                model.addAttribute(
+                        "error",
+                        "Invalid date or time format. Please check your inputs.");
+
                 model.addAttribute("labs", List.of());
             }
 
         } else {
-            // When no filter searched, display all laboratories
             model.addAttribute("labs", labs);
         }
 
-        model.addAttribute("rollNo", rollNo);
+        model.addAttribute("student", student);
+        model.addAttribute("rollNo", authenticatedRollNo);
         model.addAttribute("searched", searched);
         model.addAttribute("date", date);
         model.addAttribute("startTime", startTime);
         model.addAttribute("endTime", endTime);
 
-        // If rollNo is provided, attach student info for header
-        if (rollNo != null && !rollNo.isBlank()) {
-            studentRepository.findByRollNo(rollNo.trim())
-                    .ifPresent(student -> model.addAttribute("student", student));
-        }
-
         return "student-availability";
     }
 
-    /**
-     * Campus Laboratories Directory for Students
+    /*
+     * Student laboratories directory
      */
     @GetMapping("/student/labs")
     public String listLabsForStudents(
-            @RequestParam(required = false) String rollNo,
+            HttpSession session,
             Model model) {
 
-        model.addAttribute("labs", labRepository.findAll());
-        model.addAttribute("rollNo", rollNo);
+        String authenticatedRollNo = getAuthenticatedRollNo(session);
 
-        if (rollNo != null && !rollNo.isBlank()) {
-            studentRepository.findByRollNo(rollNo.trim())
-                    .ifPresent(student -> model.addAttribute("student", student));
+        if (authenticatedRollNo == null) {
+            return "redirect:/student/portal";
         }
 
+        Optional<Student> studentOptional =
+                studentRepository.findByRollNo(authenticatedRollNo);
+
+        if (studentOptional.isEmpty()) {
+            session.removeAttribute(STUDENT_SESSION_KEY);
+            return "redirect:/student/portal?error=invalid";
+        }
+
+        Student student = studentOptional.get();
+        student.setPassword(null);
+
+        model.addAttribute("labs", labRepository.findAll());
+        model.addAttribute("student", student);
+        model.addAttribute("rollNo", authenticatedRollNo);
+
         return "student-labs";
+    }
+
+    /*
+     * Student logout
+     */
+    @PostMapping("/student/logout")
+    public String studentLogout(HttpSession session) {
+
+        session.invalidate();
+
+        return "redirect:/student/portal?logout";
+    }
+
+    /*
+     * Return the authenticated student's roll number from the session.
+     */
+    private String getAuthenticatedRollNo(HttpSession session) {
+
+        Object value = session.getAttribute(STUDENT_SESSION_KEY);
+
+        if (value instanceof String rollNo && !rollNo.isBlank()) {
+            return rollNo;
+        }
+
+        return null;
     }
 }

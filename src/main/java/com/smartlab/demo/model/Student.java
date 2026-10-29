@@ -28,6 +28,9 @@ public class Student {
     @Column(nullable = false)
     private String department;
 
+    @Column(length = 255)
+    private String password;
+
     public Student() {
     }
 
@@ -61,5 +64,13 @@ public class Student {
 
     public void setDepartment(String department) {
         this.department = department;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
