@@ -171,6 +171,7 @@ public class LabAllocationController {
                 return buildRedirect(redirectTarget, isStudent, rollNo, date, startTime, endTime);
             }
 
+<<<<<<< HEAD
             if (allocationRepository.hasOverlappingBookingForStudent(
                     student.getStudentId(), allocationDate, start, end)) {
                 redirectAttributes.addFlashAttribute(
@@ -178,6 +179,8 @@ public class LabAllocationController {
                 return buildRedirect(redirectTarget, isStudent, rollNo, date, startTime, endTime);
             }
 
+=======
+>>>>>>> dc78f9a2357f043559caafd4594dd5200f38b5be
             boolean booked = allocationRepository.isSeatBooked(labId, seatNumber, allocationDate, start, end);
             if (booked) {
                 redirectAttributes.addFlashAttribute("error", "Seat #" + seatNumber + " is already booked for the selected time.");
@@ -231,4 +234,8 @@ public class LabAllocationController {
         }
         return sb.toString();
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> dc78f9a2357f043559caafd4594dd5200f38b5be

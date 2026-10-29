@@ -36,6 +36,7 @@ boolean isSeatBooked(
     @Param("endTime") LocalTime endTime
 );
 
+<<<<<<< HEAD
 @Query("""
     SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
     FROM LabAllocation a
@@ -51,4 +52,6 @@ boolean hasOverlappingBookingForStudent(
     @Param("endTime") LocalTime endTime
 );
 
+=======
+>>>>>>> dc78f9a2357f043559caafd4594dd5200f38b5be
 }
