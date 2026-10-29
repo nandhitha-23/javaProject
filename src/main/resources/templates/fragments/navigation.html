@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Reusable Navigation Sidebar Fragment -->
+<aside th:fragment="sidebar(activePage)" class="app-sidebar">
+
+    <!-- Brand -->
+    <div class="brand">
+        <div class="brand-icon">🧪</div>
+        <div class="brand-info">
+            <h1>SmartLab</h1>
+            <span>Allocation Suite</span>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <a th:href="@{/}"
+           class="nav-link"
+           th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
+            <span class="nav-link-icon">🏠</span>
+            <span class="nav-link-text">Dashboard</span>
+        </a>
+
+        <a th:href="@{/students}"
+           class="nav-link"
+           th:classappend="${activePage == 'students'} ? 'active' : ''">
+            <span class="nav-link-icon">👨‍🎓</span>
+            <span class="nav-link-text">Students</span>
+        </a>
+
+        <a th:href="@{/labs}"
+           class="nav-link"
+           th:classappend="${activePage == 'labs'} ? 'active' : ''">
+            <span class="nav-link-icon">🧪</span>
+            <span class="nav-link-text">Laboratories</span>
+        </a>
+
+        <a th:href="@{/allocations}"
+           class="nav-link"
+           th:classappend="${activePage == 'allocations'} ? 'active' : ''">
+            <span class="nav-link-icon">📋</span>
+            <span class="nav-link-text">All Allocations</span>
+        </a>
+
+        <a th:href="@{/allocations/add}"
+           class="nav-link"
+           th:classappend="${activePage == 'new-allocation'} ? 'active' : ''">
+            <span class="nav-link-icon">➕</span>
+            <span class="nav-link-text">New Allocation</span>
+        </a>
+
+        <a th:href="@{/lab-availability}"
+           class="nav-link"
+           th:classappend="${activePage == 'availability'} ? 'active' : ''">
+            <span class="nav-link-icon">🔍</span>
+            <span class="nav-link-text">Check Availability</span>
+        </a>
+
+        <a th:href="@{/student/portal}"
+           class="nav-link"
+           target="_blank"
+           title="Open Student Portal in new tab">
+            <span class="nav-link-icon">👨‍🎓</span>
+            <span class="nav-link-text">Student Portal ↗</span>
+        </a>
+    </nav>
+
+    <!-- Sidebar Footer with User Details & Logout Button -->
+    <div class="sidebar-footer">
+        <div class="user-badge">
+            <div class="user-avatar">A</div>
+            <div class="user-details">
+                <div class="name">Administrator</div>
+                <div class="role">
+                    <span class="role-dot"></span>
+                    <span>Admin Active</span>
+                </div>
+            </div>
+        </div>
+
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <button type="submit" class="btn-logout" title="Sign out">
+                <span>🚪</span>
+                <span>Sign Out</span>
+            </button>
+        </form>
+    </div>
+
+</aside>
+
+</body>
+</html>

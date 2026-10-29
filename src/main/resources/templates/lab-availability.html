@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lab Availability | Smart Lab Allocation</title>
+
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/navigation :: sidebar(activePage='availability')}"></div>
+
+    <main class="app-main">
+
+        <!-- Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <h1>🔍 Lab Availability Checker</h1>
+                <p>Find available laboratories and book individual seats.</p>
+            </div>
+        </header>
+
+        <!-- Success Message -->
+        <div th:if="${success}" class="alert alert-success">
+            <span th:text="${success}"></span>
+        </div>
+
+        <!-- Error Message -->
+        <div th:if="${error}" class="alert alert-danger">
+            <span>⚠</span>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Search Form -->
+        <section class="card-panel">
+
+            <div class="panel-header">
+                <h2 class="panel-title">Search Available Seats</h2>
+            </div>
+
+            <form th:action="@{/lab-availability}" method="get">
+
+                <div class="form-grid-3">
+
+                    <div class="form-group">
+                        <label class="form-label" for="date">Date</label>
+
+                        <input type="date"
+                               id="date"
+                               name="date"
+                               class="form-control"
+                               th:value="${date}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="startTime">Start Time</label>
+
+                        <input type="time"
+                               id="startTime"
+                               name="startTime"
+                               class="form-control"
+                               th:value="${startTime}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="endTime">End Time</label>
+
+                        <input type="time"
+                               id="endTime"
+                               name="endTime"
+                               class="form-control"
+                               th:value="${endTime}"
+                               required>
+                    </div>
+
+                </div>
+
+                <div class="form-actions" style="margin-top: 10px;">
+
+                    <button type="submit" class="btn btn-primary">
+                        Check Availability
+                    </button>
+
+                    <a th:href="@{/lab-availability}"
+                       class="btn btn-secondary">
+                        Clear Filter
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <!-- Available Labs -->
+        <section class="card-panel" th:if="${searched}">
+
+            <div class="panel-header">
+                <h2 class="panel-title">Available Laboratories</h2>
+
+                <span class="badge badge-green"
+                      th:text="${#lists.size(labs)} + ' Available'">
+                    0 Available
+                </span>
+            </div>
+
+            <div th:if="${#lists.isEmpty(labs)}" class="empty-state">
+
+                <div class="empty-state-icon">⏳</div>
+
+                <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">
+                    No Available Laboratories
+                </div>
+
+                <div>
+                    No free seats were found for the selected date and time.
+                </div>
+
+            </div>
+
+            <div th:if="${!#lists.isEmpty(labs)}"
+                 style="display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                        gap: 18px;">
+
+                <div th:each="lab : ${labs}"
+                     style="background: #ffffff;
+                            border: 1px solid var(--border);
+                            border-left: 5px solid var(--success);
+                            border-radius: var(--radius-md);
+                            padding: 18px;
+                            box-shadow: var(--shadow-sm);">
+
+                    <div style="display: flex;
+                                justify-content: space-between;
+                                align-items: flex-start;
+                                margin-bottom: 10px;">
+
+                        <h3 style="font-size: 16px;
+                                   font-weight: 700;
+                                   color: var(--text-main);"
+                            th:text="${lab.labName}">
+                            Lab Name
+                        </h3>
+
+                        <span class="badge badge-green">
+                            ✓ Available
+                        </span>
+
+                    </div>
+
+                    <p style="font-size: 13px;
+                              color: var(--text-muted);
+                              margin-bottom: 6px;">
+
+                        📍 Location:
+
+                        <strong style="color: var(--text-main);"
+                                th:text="${lab.location}">
+                            Location
+                        </strong>
+
+                    </p>
+
+                    <p style="font-size: 13px;
+                              color: var(--text-muted);
+                              margin-bottom: 16px;">
+
+                        💺 Total seats:
+
+                        <strong style="color: var(--text-main);"
+                                th:text="${lab.capacity}">
+                            30
+                        </strong>
+
+                    </p>
+
+                    <!-- Individual Seat Booking Form -->
+                    <form th:action="@{/book-seat}" method="post">
+
+                        <!-- CSRF token is needed when Spring Security CSRF is enabled -->
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+
+                        <input type="hidden"
+                               name="labId"
+                               th:value="${lab.id}">
+
+                        <input type="hidden"
+                               name="date"
+                               th:value="${date}">
+
+                        <input type="hidden"
+                               name="startTime"
+                               th:value="${startTime}">
+
+                        <input type="hidden"
+                               name="endTime"
+                               th:value="${endTime}">
+
+                        <div class="form-group" style="margin-bottom: 14px;">
+
+                            <label class="form-label"
+                                   th:for="'studentId-' + ${lab.id}">
+                                Student ID
+                            </label>
+
+                            <input type="number"
+                                   class="form-control"
+                                   name="studentId"
+                                   th:id="'studentId-' + ${lab.id}"
+                                   min="1"
+                                   placeholder="Enter your student ID"
+                                   required>
+
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 14px;">
+
+                            <label class="form-label"
+                                   th:for="'seatNumber-' + ${lab.id}">
+                                Select Seat
+                            </label>
+
+                            <select class="form-control"
+                                    name="seatNumber"
+                                    th:id="'seatNumber-' + ${lab.id}"
+                                    required>
+
+                                <option value="">Choose a seat</option>
+
+                                <option th:each="seat : ${#numbers.sequence(1, lab.capacity)}"
+                                        th:value="${seat}"
+                                        th:text="'Seat ' + ${seat}">
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary"
+                                style="width: 100%; padding: 8px 14px; font-size: 13px;">
+                            💺 Book Selected Seat
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Initial state guidance panel -->
+        <section class="card-panel" th:if="${!searched}">
+            <div class="empty-state">
+                <div class="empty-state-icon">🔍</div>
+                <div style="font-weight: 600; font-size: 16px; margin-bottom: 6px; color: var(--text-main);">
+                    Check Laboratory Availability
+                </div>
+                <div style="color: var(--text-muted); max-width: 480px; margin: 0 auto; line-height: 1.5;">
+                    Select a date, start time, and end time in the filter form above, then click <strong>Check Availability</strong> to view vacant laboratories and book individual seats.
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

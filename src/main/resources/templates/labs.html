@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratories | Smart Lab Allocation</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- Reusable Sidebar Navigation -->
+    <div th:replace="~{fragments/navigation :: sidebar(activePage='labs')}"></div>
+
+    <!-- Main Content -->
+    <main class="app-main">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <h1>Laboratory Facilities</h1>
+                <p>Manage campus laboratories, workstations, and maximum seating capacities.</p>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/labs/add}" class="btn btn-primary">
+                    <span>+ Add New Lab</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span>✓</span>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Labs List Panel -->
+        <section class="card-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Available Laboratories</h2>
+                <span class="badge badge-emerald" th:text="${#lists.size(labs) + ' Facilities'}">0 Facilities</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th>Laboratory Name</th>
+                        <th>Location / Room</th>
+                        <th>Seating Capacity</th>
+                        <th style="text-align: right; width: 180px;">Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="lab : ${labs}">
+                        <td><span class="badge badge-purple" th:text="'#' + ${lab.id}">#1</span></td>
+                        <td>
+                            <strong th:text="${lab.labName}">Lab Name</strong>
+                        </td>
+                        <td>
+                            <span>📍 </span><span th:text="${lab.location}">Room 101</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-green" th:text="${lab.capacity} + ' Seats'">30 Seats</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 8px; align-items: center;">
+                                <a th:href="@{/labs/edit/{id}(id=${lab.id})}"
+                                   class="btn btn-edit-outline">
+                                    Edit
+                                </a>
+
+                                <a th:href="@{/labs/delete/{id}(id=${lab.id})}"
+                                   class="btn btn-danger-outline"
+                                   onclick="return confirm('Are you sure you want to delete this laboratory?');">
+                                    Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(labs)}">
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🧪</div>
+                                <div>No laboratories configured. Click "+ Add New Lab" to create one.</div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

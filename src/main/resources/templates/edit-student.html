@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student | Smart Lab Allocation</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- Reusable Sidebar Navigation -->
+    <div th:replace="~{fragments/navigation :: sidebar(activePage='students')}"></div>
+
+    <!-- Main Content -->
+    <main class="app-main">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <h1>Edit Student Record</h1>
+                <p>Update student details and registration records.</p>
+            </div>
+            <div>
+                <a th:href="@{/students}" class="btn btn-secondary">
+                    ← Back to Students
+                </a>
+            </div>
+        </header>
+
+        <!-- Edit Form Card -->
+        <section class="card-panel" style="max-width: 600px;">
+            <div class="panel-header">
+                <h2 class="panel-title">✏ Student Information</h2>
+                <span class="badge badge-purple" th:text="'Student #' + ${student.studentId}">#1</span>
+            </div>
+
+            <form th:action="@{/students/update}"
+                  th:object="${student}"
+                  method="post">
+
+                <input type="hidden" th:field="*{studentId}">
+
+                <div class="form-group">
+                    <label class="form-label" for="studentName">Student Name</label>
+                    <input type="text"
+                           id="studentName"
+                           th:field="*{studentName}"
+                           class="form-control"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="rollNo">Roll Number</label>
+                    <input type="text"
+                           id="rollNo"
+                           th:field="*{rollNo}"
+                           class="form-control"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="department">Department</label>
+                    <input type="text"
+                           id="department"
+                           th:field="*{department}"
+                           class="form-control"
+                           required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span>Save Changes</span>
+                    </button>
+                    <a th:href="@{/students}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lab.id == null ? 'Add Laboratory' : 'Edit Laboratory'} + ' | Smart Lab Allocation'">Laboratory | Smart Lab Allocation</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- Reusable Sidebar Navigation -->
+    <div th:replace="~{fragments/navigation :: sidebar(activePage='labs')}"></div>
+
+    <!-- Main Content -->
+    <main class="app-main">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="page-title">
+                <h1 th:text="${lab.id == null ? 'Add New Laboratory' : 'Edit Laboratory'}">Laboratory Details</h1>
+                <p>Configure facility specifications and seat limits.</p>
+            </div>
+            <div>
+                <a th:href="@{/labs}" class="btn btn-secondary">
+                    ← Back to Labs
+                </a>
+            </div>
+        </header>
+
+        <!-- Form Panel -->
+        <section class="card-panel" style="max-width: 600px;">
+            <div class="panel-header">
+                <h2 class="panel-title" th:text="${lab.id == null ? '🧪 Create Laboratory' : '✏ Edit Laboratory Facility'}">
+                    Laboratory Details
+                </h2>
+                <span th:if="${lab.id != null}" class="badge badge-purple" th:text="'Lab #' + ${lab.id}">#1</span>
+            </div>
+
+            <form th:action="@{/labs/save}"
+                  th:object="${lab}"
+                  method="post">
+
+                <input type="hidden" th:field="*{id}">
+
+                <div class="form-group">
+                    <label class="form-label" for="labName">Laboratory Name</label>
+                    <input type="text"
+                           id="labName"
+                           th:field="*{labName}"
+                           class="form-control"
+                           placeholder="e.g. Cloud Computing Lab"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="location">Location / Building & Room</label>
+                    <input type="text"
+                           id="location"
+                           th:field="*{location}"
+                           class="form-control"
+                           placeholder="e.g. Science Block, Room 302"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="capacity">Seating Capacity</label>
+                    <input type="number"
+                           id="capacity"
+                           th:field="*{capacity}"
+                           class="form-control"
+                           min="1"
+                           placeholder="e.g. 40"
+                           required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span>Save Laboratory</span>
+                    </button>
+                    <a th:href="@{/labs}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>
